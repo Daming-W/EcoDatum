@@ -1,0 +1,3 @@
+[submodule "Vaquitai"]
+	path = Vaquitai
+	url = git@github.com:ProjectVaquitai/Vaquitai.git
