@@ -42,7 +42,7 @@ For detailed usage and customization options, please refer to the [documentation
 
 ## Achievement
 
-EcoDatum has been evaluated on the DataComp leaderboard, achieving an average performance score of 0.182 across 38 diverse evaluation datasets. This represents a 28% improvement over the DataComp baseline method, demonstrating its effectiveness in improving dataset curation and model training efficiency.
+EcoDatum has been evaluated on the [DataComp leaderboard](https://www.datacomp.ai/dcclip/leaderboard.html), achieving an average performance score of 0.182 across 38 diverse evaluation datasets. This represents a 28% improvement over the DataComp baseline method, demonstrating its effectiveness in improving dataset curation and model training efficiency.
 
 ## Contributing
 
