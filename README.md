@@ -2,6 +2,19 @@
 
 This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211) by Jinda Xu et al. EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
 
+## Authors
+
+- **Jinda Xu<sup>1</sup>**
+- **Yuhao Song<sup>2</sup>**
+- **Daming Wang<sup>2</sup>**
+- **Weiwei Zhao<sup>1</sup>**
+- **Minghua Chen<sup>2</sup>**
+- **Kangliang Chen<sup>2</sup>**
+- **Qinya Li<sup>1</sup>**
+
+<sup>1</sup>Shanghai Key Laboratory of Scalable Computing and Systems, Shanghai Jiao Tong University  
+<sup>2</sup>HAOMO.AI Technology Co., Ltd.
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -36,7 +49,6 @@ pip install -r requirements.txt
 ## Usage
 
 EcoDatum can be used to curate datasets before training visual-language models. Here's a basic example of how to apply EcoDatum to your dataset:
-
 
 For detailed usage and customization options, please refer to the [documentation](https://github.com/yourusername/ecodatum/docs).
 
