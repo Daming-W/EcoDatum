@@ -43,6 +43,8 @@ To use EcoDatum, clone this repository and install the required dependencies:
 ```bash
 git clone git@github.com:Daming-W/ecodatum.git
 cd ecodatum
+conda env create -f environment.yml
+or
 pip install -r requirements.txt
 ```
 
