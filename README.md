@@ -1,19 +1,12 @@
-# EcoDatum -- [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation]
+# [AAAI 2025] EcoDatum: Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation
+[![Static Badge](https://img.shields.io/badge/2502.08211-%23B31B1B?logo=arxiv&label=EcoDatum&link=https%3A%2F%2Farxiv.org%2Fabs%2F2502.08211)](https://arxiv.org/abs/2502.08211)
+[![Static Badge](https://img.shields.io/badge/EcoDatum-%23181717?logo=github&label=Github&link=https%3A%2F%2Fgithub.com%2FDaming-W%2FEcoDatum)](https://github.com/Daming-W/EcoDatum)
 
-This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211) by Jinda Xu et al. EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
 
-## Authors
+This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211). EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
 
-- **Jinda Xu<sup>1</sup>**
-- **Yuhao Song<sup>2</sup>**
-- **Daming Wang<sup>2</sup>**
-- **Weiwei Zhao<sup>1</sup>**
-- **Minghua Chen<sup>2</sup>**
-- **Kangliang Chen<sup>2</sup>**
-- **Qinya Li<sup>1</sup>**
+## 💥 News
 
-<sup>1</sup>Shanghai Key Laboratory of Scalable Computing and Systems, Shanghai Jiao Tong University  
-<sup>2</sup>HAOMO.AI Technology Co., Ltd.
 
 ## Table of Contents
 
