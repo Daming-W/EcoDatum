@@ -35,9 +35,9 @@ import time
 
 if __name__=="__main__":
 
-    score_df1 = read_jsonl_i("output/processed_captions/mgm_pretrain_stage_1_online_res_ops_stats.jsonl")
-    score_df2 = read_jsonl_g("output/processed_captions/mgm_pretrain_stage_1_online_res_gdino_stats.jsonl")
-    score_df3 = read_jsonl_icc("output/processed_captions/mgm_pretrain_stage_1_online_res_icc_score.jsonl")
+    score_df1 = read_jsonl_i("/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup_stats.jsonl")
+    score_df2 = read_jsonl_g("/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup_gdino.jsonl")
+    score_df3 = read_jsonl_icc("/mnt/share_disk/LIV/datacomp/processed_data/caption_eval/881w_icc_score.jsonl")
 
     combined_df = pd.concat([score_df1, score_df2, score_df3], axis=1)
     combined_df.columns = list(range(combined_df.shape[1]))
@@ -48,39 +48,19 @@ if __name__=="__main__":
 
     # filter by low-level-visual filters
     combined_df_llv = combined_df
-    # combined_df_llv = combined_df[
-    #                           # visual
-    #                           (combined_df[0] >= 0.29) &  # blurry
-    #                           (combined_df[1] >= 0.32) &  # dark
-    #                           (combined_df[2] >= 0.05) &  # light
-    #                           (combined_df[3] >= 0.3) &   # low info
-    #                         #   (combined_df[4] >= 0.33) & # ratio
-    #                           # textual
-    #                           (combined_df[19] >= 0.005) # icc
-    #                           ]
 
     print(combined_df_llv)
 
     # select lfs 
     lfs = [
-        #    check_blurry_score,
-        #    check_dark_score,
-        #    check_grayscale_score,
-           check_image_text_similarity,
-        #    check_light_score,
-        #    check_low_information_score,
-        #    check_lang_and_lang_score,
+           check_blurry_score,
            check_odd_aspect_ratio_score,
-        #    check_hclip,
-        #    check_vclip,
-        #    check_avg_ratio,
-        #    check_num_detections,
-        #    check_avg_score,
-        #    check_max_score,
+           check_image_text_similarity,
+            check_lang_and_lang_score,
+            check_hclip,
+            check_vclip,
             check_icc_score,
-            check_gdino_v1, 
-            # check_5llv
-            # check_gdino_v2
+            check_gdino_v1
            ] 
 
     t1 = time.time()
@@ -148,11 +128,6 @@ if __name__=="__main__":
     print("## LabelModel ##\n",probs_train)
     t6 = time.time()
 
-    # with open("/root/datacomp_snorkel/label.txt", 'w') as file:
-    #     for sublist in probs_train:
-    #         file.write(f"{sublist[0]}, {sublist[1]}\n")
-    # print("writing in label.txt")
-    
     # obtain top
     score_list = [i[1] for i in probs_train]
 
@@ -177,16 +152,9 @@ if __name__=="__main__":
     random.shuffle(output_indices)
 
     copy_selected_data(
-        "output/image_captioning_output/mgm_pretrain_stage_1_online_res.jsonl",
-        # "/mnt/ve_share/LIV/datacomp/processed_data/881w_processed/881w_allin_5llv_icc_3clip_gdinov1_35_goodfit_0806.jsonl",
-        "output/curated_data/mgm_4ops_ensemble_0823.jsonl",
+        "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup.jsonl",
+        "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/best_181_ensemblescore.jsonl",
         output_indices
     )
-
-    # copy_selected_data_withscore(
-    #     "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup.jsonl",
-    #     "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/best_181_ensemblescore.jsonl",
-    #     output_indices,values
-    # )
 
     print(t2-t1,t4-t3,t6-t5)
