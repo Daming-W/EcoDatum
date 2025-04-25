@@ -45,6 +45,7 @@ In the era of big data, effectively curating web-crawled datasets is crucial for
 - **Quality-Guided Deduplication**: Ensures balanced feature distributions by removing redundant data based on quality metrics.
 - **Automated Optimization**: Utilizes a composite metric and a small labeled dataset to fine-tune the integration of curation operators.
 - **Improved Model Training Efficiency**: Demonstrated to enhance model performance across diverse evaluation datasets.
+  
 ![Pipeline](figs/f2.png)
 
 ## Installation
