@@ -64,7 +64,42 @@ pip install -r requirements.txt
 
 EcoDatum can be used to curate datasets before training visual-language models. Here's a basic example of how to apply EcoDatum to your dataset:
 
-For detailed usage and customization options, please refer to the [documentation](https://github.com/yourusername/ecodatum/docs).
+### STEP 1  – Prepare Example Assets
+
+Place your dataset with JSONL into examples/data/ — follow the same file structure used in the examples/ template.
+
+Read the operator description in Vaquitai/README.md and choose the operators you need.
+
+Run the selected operators to produce prediction files (JSONL) and move them to examples/ops_results/.
+
+### STEP 2  – Configure the Recipe
+
+Edit the YAML under examples/config/:
+
+data_path: absolute or relative path to the files in examples/data/.
+
+ops_results_path: pointing to the JSONL files in examples/ops_results/.
+
+Any operator‑specific thresholds or parameters.
+
+### STEP 3  – Define Labeling Functions (LFs) (Optional)
+
+- Option A - Apply pre-defined LFs: check labeling_functions.py, EcoDatum provides few pre-defined LFs, you may want to try different parameters combinations!
+
+- Option B – Apply your own LFs: open labeling_functions.py and add lfs whatever you like that refs to the operators you inferenced with at step 1! 
+
+Make sure each LF is added to the 'lfs' list of ensemble.py.
+
+** Tip **: Keep LF names self‑explanatory; this helps when reading the LFAnalysis summary.
+
+### STEP 4  – Run the Ensembler
+
+```bash
+python ensemble.py
+```
+
+A curated dataset (JSONL) is saved to examples/output/.
+
 
 ## Achievement
 
