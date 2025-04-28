@@ -6,6 +6,7 @@
 This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211). EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
 
 ## 💥 News
+- **2025/04:** [Print Version](https://ojs.aaai.org/index.php/AAAI/article/view/35481) is released.
 - **2025/03:** Code is released.
 - **2025/02:** Paper is published on the [ArXiv](https://arxiv.org/abs/2412.05435).
 - **2024/12:** Paper is accepted at the [AAAI 2025](https://aaai.org/wp-content/uploads/2025/01/AAAI-25-Poster-Schedule.pdf).
@@ -66,36 +67,40 @@ EcoDatum can be used to curate datasets before training visual-language models. 
 
 ### STEP 1  – Prepare Example Assets
 
-Place your dataset with JSONL into examples/data/ — follow the same file structure used in the examples/ template.
+Place your dataset with JSONL into `examples/data/` — follow the same file structure used in the `examples/` template.
 
-Read the operator description in Vaquitai/README.md and choose the operators you need.
+Read the operator description in `Vaquitai/README.md` and choose the operators you need.
 
-Run the selected operators to produce prediction files (JSONL) and move them to examples/ops_results/.
+Run the selected operators to produce prediction files (JSONL) and move them to `examples/ops_results/`.
 
 ### STEP 2  – Configure the Recipe
 
-Edit the YAML under examples/config/:
+Edit the YAML under `examples/config/`:
 
-data_path: absolute or relative path to the files in examples/data/.
+- `data_path`: absolute or relative path to the files in `examples/data/`.
 
-ops_results_path: pointing to the JSONL files in examples/ops_results/.
+- `ops_results_path`: pointing to the JSONL files in `examples/ops_results/`.
 
 Any operator‑specific thresholds or parameters.
 
 ### STEP 3  – Define Labeling Functions (LFs) (Optional)
 
-- Option A - Apply pre-defined LFs: check labeling_functions.py, EcoDatum provides few pre-defined LFs, you may want to try different parameters combinations!
+- Option A - Apply pre-defined LFs: check `labeling_functions.py`, EcoDatum provides few pre-defined LFs, you may want to try different parameters combinations!
 
-- Option B – Apply your own LFs: open labeling_functions.py and add lfs whatever you like that refs to the operators you inferenced with at step 1! 
+- Option B – Apply your own LFs: open `labeling_functions.py` and add lfs whatever you like that refs to the operators you inferenced with at step 1! 
 
-Make sure each LF is added to the 'lfs' list of ensemble.py.
+Make sure each LF is added to the 'lfs' list of `ensemble.py`.
 
-** Tip **: Keep LF names self‑explanatory; this helps when reading the LFAnalysis summary.
+**Tip**: Keep LF names self‑explanatory; this helps when reading the LFAnalysis summary.
 
 ### STEP 4  – Run the Ensembler
 
 ```bash
-python ensemble.py
+python ensemble.py --config examples/config/your_config.yaml
+```
+Output:
+```bash
+examples/output/curated_dataset.jsonl
 ```
 
 A curated dataset (JSONL) is saved to examples/output/.
