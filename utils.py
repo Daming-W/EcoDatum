@@ -39,26 +39,17 @@ def read_jsonl_vhclip(jsonl_path):
 
     return pd.DataFrame(res_array)
 
-def read_jsonl_g(jsonl_path):
+def read_jsonl_gdino(jsonl_path):
     with open(jsonl_path, 'r') as f:
         lines = f.readlines()
-    res_array = [None] * len(lines)
+    res_array = []
 
     for idx, line in enumerate(tqdm(lines, desc="Processing", unit=" lines")):
         score = ujson.loads(line.strip())["__dj__stats__"].get("grounding_dino_detection", None)
-        result = {
-                "boxes": [0],
-                "num_detections": 0, 
-                "scores": [0]
-        }
-
-        if score is None or score["num_detections"] == 0:
-            score = result
+        if score["scores"] is None or score["num_detections"] == 0:
+            res_array.append([[0.0]])
         else:
-            del score["labels"]
-
-        res_array[idx] = [i for i in score.values()]
-
+            res_array.append([score["scores"]])
     return pd.DataFrame(res_array)
 
 def read_jsonl_icc(jsonl_path):

@@ -1,160 +1,177 @@
 import os
 import json
-import ujson
 import numpy as np
 import pandas as pd
 from tqdm import tqdm 
-import torch
 import random
 from concurrent.futures import ThreadPoolExecutor
+import time
+import argparse
+import yaml
 
 from snorkel.labeling import labeling_function
 from snorkel.labeling import PandasLFApplier
 from snorkel.labeling import LFAnalysis
-from snorkel.labeling.model import MajorityLabelVoter, LabelModel
+from snorkel.labeling.model import LabelModel
 
-# 导入从 labeling_functions.py 中移动的函数和常量
+# Import functions and constants from labeling_functions.py
 from labeling_functions import (
-    SELETED, FILTERED, ABSTAIN, OPS_LIST, SCORE_DICT,
-    check_blurry_score, check_dark_score, check_grayscale_score, 
-    check_light_score, check_low_information_score, check_odd_aspect_ratio_score,
-    check_odd_size_score, check_image_text_similarity, check_char_rep_ratio,
-    check_lang_and_lang_score, check_word_rep_ratio, check_hclip, check_vclip,
-    check_avg_ratio, check_num_detections, check_avg_score, check_max_score,
-    check_icc_score, check_gdino_v1, check_gdino_v2, check_5llv
+    SELECTED, FILTERED, ABSTAIN,
+    check_blurry_score, check_odd_aspect_ratio_score,
+    check_image_text_similarity, check_lang_and_lang_score,
+    check_hclip, check_vclip, check_icc_score, check_gdino_v1
 )
 
-# 导入从 utils.py 中移动的功能性函数
+# Import utility functions from utils.py
 from utils import (
-    read_jsonl, read_jsonl_i, read_jsonl_vhclip, read_jsonl_g, read_jsonl_icc,
-    process_line, copy_selected_data, process_line_withscore, copy_selected_data_withscore,
-    set_seed
+    read_jsonl_i, read_jsonl_gdino, read_jsonl_icc,
+    copy_selected_data
 )
 
-import time
+def parse_args():
 
-if __name__=="__main__":
+    # Create Parser, but only accept config file path
+    parser = argparse.ArgumentParser(description='EcoDatum Ensemble Computing')
+    parser.add_argument('--config', type=str, default='examples/config/demo.yaml', 
+                        help='Path to configuration YAML file')
+    args_config = parser.parse_args()
+    
+    # Check if the config file exists
+    if not os.path.exists(args_config.config):
+        print(f"The Config File Not Exists: {args_config.config}")
+        exit(1)
+    
+    # Read Config File
+    with open(args_config.config, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Convert Config to Namespace Object
+    class Args:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    return Args(**config)
 
-    score_df1 = read_jsonl_i("/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup_stats.jsonl")
-    score_df2 = read_jsonl_g("/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup_gdino.jsonl")
-    score_df3 = read_jsonl_icc("/mnt/share_disk/LIV/datacomp/processed_data/caption_eval/881w_icc_score.jsonl")
+if __name__ == "__main__":
+    args = parse_args()
+    
+    # Load data from different sources
+    score_df1 = read_jsonl_i(args.stats_path)
+    score_df2 = read_jsonl_gdino(args.gdino_path)
+    score_df3 = read_jsonl_icc(args.icc_path)
 
+    # Combine dataframes
     combined_df = pd.concat([score_df1, score_df2, score_df3], axis=1)
     combined_df.columns = list(range(combined_df.shape[1]))
-    # record input index
+
+    # Record original indices
     combined_df['original_index'] = combined_df.index
 
-    print(combined_df)
-
-    # filter by low-level-visual filters
-    combined_df_llv = combined_df
-
-    print(combined_df_llv)
-
-    # select lfs 
+    # Select labeling functions
     lfs = [
-           check_blurry_score,
-           check_odd_aspect_ratio_score,
-           check_image_text_similarity,
-            check_lang_and_lang_score,
-            check_hclip,
-            check_vclip,
-            check_icc_score,
-            check_gdino_v1
-           ] 
+        check_blurry_score,
+        check_odd_aspect_ratio_score,
+        check_image_text_similarity,
+        check_lang_and_lang_score,
+        check_hclip,
+        check_vclip,
+        check_icc_score,
+        check_gdino_v1
+    ] 
 
+    # Measure time for operations computation
     t1 = time.time()
-    # ops computation
+    # Apply labeling functions
     applier = PandasLFApplier(lfs=lfs)
-    L_train = applier.apply(df=combined_df_llv)
+    L_train = applier.apply(df=combined_df)
     t2 = time.time()  
 
-    # for counting ops
+    # Count label distribution
     unique, counts = np.unique(L_train, return_counts=True)
     count_dict = dict(zip(unique, counts))
     
-    # cnt
+    # Print counts
     print("Count of 1s:", count_dict.get(1, 0))
     print("Count of 0s:", count_dict.get(0, 0))
     print("Count of -1s:", count_dict.get(-1, 0))
 
-    #cls balance
-    class_cnt_ratio = [count_dict.get(0, 0),count_dict.get(1, 0)]
+    # Calculate class balance
+    class_cnt_ratio = [count_dict.get(0, 0), count_dict.get(1, 0)]
     class_balance = [class_cnt_ratio[1]/sum(class_cnt_ratio), class_cnt_ratio[0]/sum(class_cnt_ratio)]
 
-    # lf anlysis
+    # Analyze labeling functions
     analysis = LFAnalysis(L=L_train, lfs=lfs).lf_summary()
-    print("## LFAnalysis ##\n",LFAnalysis(L=L_train, lfs=lfs).lf_summary())
+    print("LFAnalysis Summary: ", LFAnalysis(L=L_train, lfs=lfs).lf_summary())
 
+    # Measure time for model training
     t3 = time.time()
-    # train label model
+    # Train label model
     label_model = LabelModel(cardinality=2, verbose=True)
-    label_model.fit(L_train=L_train, 
-                    n_epochs=200, 
-                    lr=0.01, 
-                    l2=0.001,
-                    log_freq=20, 
-                    seed=123, 
-                    # class_balance=class_balance
-                    )
-    # label_model.fit(L_train=L_train, n_epochs=500, log_freq=20, seed=123, class_balance=class_balance)
+    label_model.fit(
+        L_train=L_train, 
+        n_epochs=args.epochs, 
+        lr=args.lr, 
+        l2=args.l2,
+        log_freq=20, 
+        seed=args.seed
+    )
     t4 = time.time()
 
-    # get weights
+    # Get model weights
     weights = label_model.get_weights()
     
-    # print LFs results
+    # Print LF results with weights
     df_analysis = analysis.copy()
     df_analysis['weights'] = weights
-    print(df_analysis)
+    print('LFAnalysis Summary with Weights: ', df_analysis)
 
-    # 计算 Coverage, Conflicts, Overlaps 的平均值
+    # Calculate mean values for Coverage, Conflicts, Overlaps
     attributes_array = analysis.to_numpy()
     coverage_mean = analysis['Coverage'].mean()
     conflicts_mean = analysis['Conflicts'].mean()
     overlaps_mean = analysis['Overlaps'].mean()
 
-    # 计算 Coverage, Conflicts, Overlaps 的加权平均值
+    # Calculate weighted mean values
     coverage_weighted_mean = (analysis['Coverage'] * weights).sum() / weights.sum()
     conflicts_weighted_mean = (analysis['Conflicts'] * weights).sum() / weights.sum()
     overlaps_weighted_mean = (analysis['Overlaps'] * weights).sum() / weights.sum()
 
-    print(coverage_mean,conflicts_mean,overlaps_mean)
-    print(coverage_weighted_mean,conflicts_weighted_mean,overlaps_weighted_mean)
+    print('Coverage Mean: ', coverage_mean, 'Conflicts Mean: ', conflicts_mean, 'Overlaps Mean: ', overlaps_mean)
+    print('Coverage Weighted Mean: ', coverage_weighted_mean, 'Conflicts Weighted Mean: ', conflicts_weighted_mean, 'Overlaps Weighted Mean: ', overlaps_weighted_mean)
 
+    # Measure time for inference
     t5 = time.time()
-    # inference
+    # Predict probabilities
     probs_train = label_model.predict_proba(L=L_train)
-    print("## LabelModel ##\n",probs_train)
     t6 = time.time()
 
-    # obtain top
+    # Extract scores
     score_list = [i[1] for i in probs_train]
+    print('The Number of Scores: ', len(score_list))
 
-    print(len(score_list))
-
-    selected_indices = []
-    for i in range(0, len(score_list), 4):
-        group = score_list[i:i+4]
-        best_index = group.index(max(group)) + i
-        selected_indices.append(best_index)
-        
+    # Select best indices from each group
+    selected_indices = list(range(len(score_list)))
+       
+    # Sort by score in descending order
     selected_indices.sort(key=lambda x: score_list[x], reverse=True)
+    print(selected_indices)
+    # Take top half
+    top_indices = selected_indices[:args.output_num]
 
-    half_length = len(selected_indices) // 2
-    top_half_indices = selected_indices[:half_length]
+    # Get original indices
+    output_indices = combined_df.iloc[top_indices]['original_index'].values
 
-    # random.shuffle(indices)
-    output_indices = combined_df_llv.iloc[top_half_indices]['original_index'].values
+    print("Start preparing jsonl file")
 
-    print("start preparing jsonl file")
-
+    # Shuffle output indices
     random.shuffle(output_indices)
 
+    # Copy selected data to output file
     copy_selected_data(
-        "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/881w_dedup.jsonl",
-        "/mnt/share_disk/LIV/datacomp/processed_data/881w_processed/best_181_ensemblescore.jsonl",
+        args.input_jsonl,
+        args.output_jsonl,
         output_indices
     )
 
-    print(t2-t1,t4-t3,t6-t5)
+    print("End of Ensemble Computing, the output jsonl file is saved in: ", args.output_jsonl, "with ", len(output_indices), "data.")

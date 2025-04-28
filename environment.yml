@@ -1,4 +1,4 @@
-name: datacomp
+name: ecodatum
 channels:
   - conda-forge
   - defaults
@@ -202,4 +202,4 @@ dependencies:
       - xxhash==3.2.0
       - yarl==1.8.2
       - zipp==3.10.0
-prefix: /root/miniconda3/envs/datacomp
+prefix: /root/miniconda3/envs/ecodatum
