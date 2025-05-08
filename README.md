@@ -3,7 +3,7 @@
 [![Static Badge](https://img.shields.io/badge/EcoDatum-%23181717?logo=github&label=Github&link=https%3A%2F%2Fgithub.com%2FDaming-W%2FEcoDatum)](https://github.com/Daming-W/EcoDatum)
 
 
-This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211). EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
+[AAAI 2025] This repository provides the implementation of **EcoDatum**, a data curation framework introduced in the paper [Quality over Quantity: Boosting Data Efficiency Through Ensembled Multimodal Data Curation](https://arxiv.org/abs/2502.08211). EcoDatum enhances dataset quality by integrating various unimodal and multimodal data curation operators within a weak supervision ensemble framework, leading to improved model training efficiency.
 
 ## 💥 News
 - **2025/04:** [Print Version](https://ojs.aaai.org/index.php/AAAI/article/view/35481) is released.
